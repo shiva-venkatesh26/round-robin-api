@@ -42,10 +42,8 @@ func routeHandler(rr *roundrobin.RoundRobin) http.HandlerFunc {
 			return
 		}
 
-		// Get the next Application API instance
 		nextInstance := rr.Next()
 
-		// Forward the request to the selected instance
 		resp, err := forwardRequest(nextInstance, r)
 		if err != nil {
 			log.Printf("Failed to forward request: %v", err)
@@ -53,7 +51,6 @@ func routeHandler(rr *roundrobin.RoundRobin) http.HandlerFunc {
 			return
 		}
 
-		// Write the response back to the client
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(resp.StatusCode)
 		io.Copy(w, resp.Body)
@@ -62,7 +59,6 @@ func routeHandler(rr *roundrobin.RoundRobin) http.HandlerFunc {
 }
 
 func forwardRequest(instance string, r *http.Request) (*http.Response, error) {
-	// Read the request body
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
 		return nil, err
