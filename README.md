@@ -5,9 +5,20 @@ This project implements a Round Robin API that routes requests to a pool of back
 
 ## Features
 
-- Round Robin Load Balancing
-- Handles POST requests with JSON payload
-- Fault Tolerance and Retry Logic (future scope)
+### Vanilla Round Robin
+- Routes requests to application APIs in a round-robin manner.
+- No consideration for the health status or responsiveness of application APIs.
+- Simple and fast, but lacks fault tolerance.
+
+### Advanced Routing
+- Adds fault tolerance with the following features:
+   - **Health Check Worker**: Periodically checks the health of application APIs using a `/health` endpoint.
+   - **Retry Mechanism**: Skips unhealthy or unresponsive hosts and retries with the next healthy host.
+   - **Timeout Handling**: Avoids delays by setting timeouts for requests to slow hosts.
+- Automatically re-adds hosts to the routing pool when they recover with a worker that checks the status of hosts every X seconds.
+
+---
+
 
 ## Project Structure
 
@@ -29,12 +40,15 @@ This project implements a Round Robin API that routes requests to a pool of back
    go run cmd/router/main.go
    ```
 
-3. Send POST requests to the Router API:
+3. Send POST requests to the Vanilla Router API:
    ```bash
    curl -X POST http://localhost:8080/route -d '{"key":"value"}' -H "Content-Type: application/json"
+   ```
+3. Send POST requests to the Advanced Router API:
+   ```bash
+    curl -X POST -H "Content-Type: application/json" -d '{"key":"value"}' http://localhost:8080/advanced_routing
    ```
 
 ## Requirements
 
 - Go 1.19+
-
