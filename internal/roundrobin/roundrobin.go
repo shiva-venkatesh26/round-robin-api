@@ -38,11 +38,12 @@ func (rr *RoundRobin) NextHealthy() (string, bool) {
 
 	// Iterate over all hosts to find the next healthy one
 	for i := 0; i < len(rr.Hosts); i++ {
-		rr.Index = (rr.Index + 1) % len(rr.Hosts)
-		host := rr.Hosts[rr.Index]
+		host := rr.Hosts[rr.Index] // Check the current host
 		if host.IsHealthy {
+			rr.Index = (rr.Index + 1) % len(rr.Hosts) // Move to the next host after returning
 			return host.URL, true
 		}
+		rr.Index = (rr.Index + 1) % len(rr.Hosts) // Increment index to check the next host
 	}
 	// No healthy host found
 	return "", false
@@ -70,12 +71,11 @@ func (rr *RoundRobin) HealthCheckWorker(interval time.Duration, check func(strin
 	ticker := time.NewTicker(interval) // Set up a periodic ticker & clean up the ticker when the worker stops
 	defer ticker.Stop()
 
-	for range ticker.C { // Run at each tick
-		for _, host := range rr.Hosts { // Iterate through all hosts
-			healthy := check(host.URL) // Calling the user-defined health check function
+	for range ticker.C {
+		for _, host := range rr.Hosts {
+			healthy := check(host.URL)
 			rr.UpdateHealthStatus(host.URL, healthy)
 
-			// Optional: Log the health status
 			status := "healthy"
 			if !healthy {
 				status = "unhealthy"

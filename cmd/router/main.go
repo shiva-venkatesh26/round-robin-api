@@ -114,7 +114,7 @@ func forwardRequest(host string, r *http.Request) (*http.Response, error) {
 	}
 
 	// Create a new HTTP request
-	req, err := http.NewRequest(http.MethodPost, host+"/echo", bytes.NewBuffer(body))
+	req, err := http.NewRequest(http.MethodPost, host+"/posts", bytes.NewBuffer(body))
 	if err != nil {
 		return nil, err
 	}
@@ -144,7 +144,6 @@ func main() {
 		log.Fatalf("Failed to load config: %v", err)
 	}
 
-	// Parse health check interval
 	healthCheckInterval, err := time.ParseDuration(config.HealthCheckInterval)
 	if err != nil {
 		log.Fatalf("Invalid health_check_interval: %v", err)
@@ -168,7 +167,7 @@ func main() {
 	log.Printf("Initialized hosts: %v", config.Hosts)
 
 	// Start health check worker
-	go rr.HealthCheckWorker(healthCheckInterval*time.Second, checkHealth)
+	go rr.HealthCheckWorker(healthCheckInterval, checkHealth)
 
 	// Set up endpoints
 	http.HandleFunc("/route", routeHandler(rr))                      // Vanilla round-robin
